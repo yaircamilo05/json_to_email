@@ -29,13 +29,9 @@ type Email struct {
 	Body                    string `json:"Body"`
 }
 
-var emails []Email
-var mutex = &sync.Mutex{}
-
 func main() {
-	dirPath := "C:/Users/yairc/OneDrive/Documentos/universidad/semestre 7/truora 2/enron_mail_20110402/maildir/allen-p"
+	dirPath := "C:/Users/yairc/OneDrive/Documentos/universidad/semestre 7/truora 2/enron_mail_20110402/maildir"
 	processDirectories(dirPath, "")
-	writeEmailsToFile()
 }
 
 func processDirectories(path string, prefix string) {
@@ -49,7 +45,6 @@ func processDirectories(path string, prefix string) {
 
 	for _, entry := range entries {
 		subPath := filepath.Join(path, entry.Name())
-		wg.Add(1)
 		if entry.IsDir() {
 			go func(subPath string) {
 				defer wg.Done()
@@ -136,27 +131,6 @@ func processFile(filePath string) {
 	defer jsonFile.Close()
 
 	// Escribe los datos JSON en el archivo
-	jsonFile.Write(jsonData)
-	jsonFile.WriteString("\n")
-
-	mutex.Lock()
-	emails = append(emails, email)
-	mutex.Unlock()
-}
-func writeEmailsToFile() {
-	jsonData, err := json.MarshalIndent(emails, "", "  ")
-	if err != nil {
-		fmt.Println("Error al convertir a JSON:", err)
-		return
-	}
-
-	jsonFile, err := os.Create("C:/Users/yairc/OneDrive/Documentos/universidad/semestre 7/truora 2/json/emails.json")
-	if err != nil {
-		fmt.Println("Error al crear el archivo JSON:", err)
-		return
-	}
-	defer jsonFile.Close()
-
 	jsonFile.Write(jsonData)
 	jsonFile.WriteString("\n")
 }
