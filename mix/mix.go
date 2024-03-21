@@ -7,6 +7,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	//"encoding/json"
 	"fmt"
 	"os"
@@ -103,11 +104,18 @@ func BuscarArchivos(path string) {
 		if !entry.IsDir() {
 			subPath := filepath.Join(path, entry.Name())
 			convertidorNdjson(subPath, &uploda_data)
+			dataJson, err := json.Marshal(uploda_data)
+			if err != nil {
+				fmt.Println("Error al convertir los datos a JSON:", err)
+				return
+			}
+			peticionCurl(string(dataJson))
 		}
 	}
 }
 
 func peticionCurl(data string) {
+
 	cmd := exec.Command("curl", "-u", "yaircamilo05@gmail.com:6B4OG0158f27SZ3Av9Cr", "-k", "https://api.openobserve.ai/api/yair_camilo_organization_15016_FGL9xXNbnwFSWC2/emailsA/_bulk", "-d", "@"+data)
 	output, err := cmd.Output()
 	if err != nil {
