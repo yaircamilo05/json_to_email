@@ -56,10 +56,12 @@ func processDirectoriesRoot(path string) {
 		fullPath := filepath.Join(path, entry.Name())
 		BuscarCarpetas(fullPath, &json)
 	}
+	fmt.Println(len(json))
 
 	//hacemos un ndjson por cada carpeta
 	var wg sync.WaitGroup
 	for _, entry := range json {
+		fmt.Println(entry)
 	 	wg.Add(1)
 	 	go func(entry string) {
 	 		defer wg.Done()
@@ -89,6 +91,7 @@ func BuscarCarpetas(path string, json *[]string) error {
 
 
 func BuscarArchivos(path string) {
+	uploda_data := []Email{}
 	entries, err := os.ReadDir(path)
 	if err != nil {
 		fmt.Println("Error al leer el archivo", err)
@@ -97,8 +100,10 @@ func BuscarArchivos(path string) {
 
 
 	for _, entry := range entries {
+		if !entry.IsDir() {
 			subPath := filepath.Join(path, entry.Name())
-			convertidorNdjson(subPath)
+			convertidorNdjson(subPath, &uploda_data)
+		}
 	}
 }
 
@@ -113,7 +118,7 @@ func peticionCurl(data string) {
 	fmt.Printf("Salida del comando:/n%s/n", output)
 }
 
-func convertidorNdjson(dataPath string) {
+func convertidorNdjson(dataPath string, uploda_data *[]Email) {
 	file, err := os.Open(dataPath)
 	if err != nil {
 		fmt.Println("Error al abrir el archivo:", err)
@@ -163,10 +168,7 @@ func convertidorNdjson(dataPath string) {
 		} else {
 			email.Body += line + "/n"
 		}
-		fmt.Println(email)
-		// jsonData, err := json.Marshal(email)
-		// if err != nil {
-		// 	fmt.Println("Error al convertir a JSON:", err)
-		return
 		}
+		*uploda_data = append(*uploda_data, email)
+		return
 	}
