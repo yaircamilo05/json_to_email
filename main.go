@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -96,14 +97,14 @@ func core(directories []string) {
 		wg.Add(1)
 		go func(dir string) {
 			defer wg.Done()
-			processDirectories(dir)
+			processDirectory(dir)
 		}(dir)
 	}
 	wg.Wait()
 }
 
-func processDirectories(path string) {
-	var wg sync.WaitGroup
+func processDirectory(path string) {
+	emails := []Email{}
 	entries, err := os.ReadDir(path)
 	if err != nil {
 		fmt.Println("Error al leer el directorio:", err)
@@ -112,28 +113,26 @@ func processDirectories(path string) {
 
 	for _, entry := range entries {
 		if !entry.IsDir() {
-			wg.Add(1)
-			go func(entry os.DirEntry) {
-				defer wg.Done()
-				filePath := filepath.Join(path, entry.Name())
-				email, err := readEmail(filePath)
-				if err != nil {
-					fmt.Println("Error al leer el archivo:", err)
-					return
-				}
-				jsonData, err := json.Marshal(email)
-				if err != nil {
-					fmt.Println("Error al convertir a JSON:", err)
-					return
-				}
-				err = sendHTTPRequest(jsonData)
-				if err != nil {
-					fmt.Println("Error al enviar la petición HTTP:", err)
-				}
-			}(entry)
+			filePath := filepath.Join(path, entry.Name())
+			email, err := readEmail(filePath)
+			if err != nil {
+				fmt.Println("Error al leer el archivo:", err)
+				continue
+			}
+			emails = append(emails, email)
 		}
 	}
-	wg.Wait()
+
+	jsonData, err := json.Marshal(emails)
+	if err != nil {
+		fmt.Println("Error al convertir a JSON:", err)
+		return
+	}
+
+	err = sendHTTPRequest(jsonData)
+	if err != nil {
+		fmt.Println("Error al enviar la petición HTTP:", err)
+	}
 }
 
 func readEmail(filePath string) (Email, error) {
@@ -143,10 +142,17 @@ func readEmail(filePath string) (Email, error) {
 	}
 	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
+	reader := bufio.NewReader(file)
 	email := Email{}
-	for scanner.Scan() {
-		line := scanner.Text()
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			return Email{}, err
+		}
+		line = strings.TrimSpace(line)
 		if strings.Contains(line, ":") {
 			split := strings.SplitN(line, ":", 2)
 			field := strings.TrimSpace(split[0])
@@ -188,10 +194,6 @@ func readEmail(filePath string) (Email, error) {
 		}
 	}
 
-	if err := scanner.Err(); err != nil {
-		return Email{}, err
-	}
-
 	return email, nil
 }
 
@@ -201,7 +203,7 @@ func sendHTTPRequest(data []byte) error {
 	if err != nil {
 		return fmt.Errorf("error creando la petición HTTP: %v", err)
 	}
-	req.SetBasicAuth("yaircamilo05@gmail.com", "2e0Z549386OPoci1n7BR")
+	req.SetBasicAuth("yaircamilo05@gmail.com", "3uQBK7ckwDp4mhQx")
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
