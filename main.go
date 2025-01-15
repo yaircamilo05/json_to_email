@@ -34,7 +34,8 @@ type Email struct {
 }
 
 func main() {
-	start := time.Now()
+	start := time.Now() // Inicia el temporizador
+
 	dirPath := filepath.Join("..", "enron_mail_20110402", "maildir")
 	directories := []string{}
 	err := findDirectories(dirPath, &directories)
@@ -50,8 +51,9 @@ func main() {
 	fmt.Println("Cantidad de directorios con archivos:", len(directoriesWithFiles))
 
 	core(directoriesWithFiles)
-	elapsed := time.Since(start)
-	fmt.Printf("Tiempo de ejecución: %s\n", elapsed)
+
+	elapsed := time.Since(start) // Calcula el tiempo transcurrido
+	fmt.Printf("El proceso completo tomó %s\n", elapsed)
 }
 
 func findDirectories(path string, directories *[]string) error {
@@ -136,7 +138,7 @@ func processDirectory(path string) {
 	err = sendHTTPRequest(jsonData)
 	if err != nil {
 		fmt.Println("Error al enviar la petición HTTP:", err)
-		if strings.Contains(err.Error(), "413") {
+		if strings.Contains(err.Error(), "413 Request Entity Too Large") {
 			handleLargeRequest(emails)
 		}
 	}
