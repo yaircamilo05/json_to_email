@@ -210,7 +210,7 @@ func sendHTTPRequest(data []byte) error {
 	if err != nil {
 		return fmt.Errorf("error creando la petición HTTP: %v", err)
 	}
-	req.SetBasicAuth("yaircamilo05@gmail.com", "3uQBK7ckwDp4mhQx")
+	req.SetBasicAuth("yaircamilo05@gmail.com", "71KU8IaQsCyHqXfR")
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
