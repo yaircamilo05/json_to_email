@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 )
 
 type Email struct {
@@ -33,6 +34,7 @@ type Email struct {
 }
 
 func main() {
+	start := time.Now()
 	dirPath := filepath.Join("..", "enron_mail_20110402", "maildir")
 	directories := []string{}
 	err := findDirectories(dirPath, &directories)
@@ -48,6 +50,8 @@ func main() {
 	fmt.Println("Cantidad de directorios con archivos:", len(directoriesWithFiles))
 
 	core(directoriesWithFiles)
+	elapsed := time.Since(start)
+	fmt.Printf("Tiempo de ejecución: %s\n", elapsed)
 }
 
 func findDirectories(path string, directories *[]string) error {
@@ -132,6 +136,9 @@ func processDirectory(path string) {
 	err = sendHTTPRequest(jsonData)
 	if err != nil {
 		fmt.Println("Error al enviar la petición HTTP:", err)
+		if strings.Contains(err.Error(), "413") {
+			handleLargeRequest(emails)
+		}
 	}
 }
 
@@ -219,4 +226,35 @@ func sendHTTPRequest(data []byte) error {
 
 	fmt.Printf("Petición HTTP enviada exitosamente: %s\n", resp.Status)
 	return nil
+}
+
+func handleLargeRequest(emails []Email) {
+	// Dividir el arreglo de emails en dos partes y reenviar
+	mid := len(emails) / 2
+	batch1 := emails[:mid]
+	batch2 := emails[mid:]
+
+	jsonData1, err := json.Marshal(batch1)
+	if err != nil {
+		fmt.Println("Error al convertir a JSON:", err)
+		return
+	}
+
+	jsonData2, err := json.Marshal(batch2)
+	if err != nil {
+		fmt.Println("Error al convertir a JSON:", err)
+		return
+	}
+
+	err = sendHTTPRequest(jsonData1)
+	if err != nil {
+		fmt.Println("Error al enviar la petición HTTP:", err)
+	}
+	fmt.Println("Petición HTTP enviada exitosamente en el segundo intento")
+
+	err = sendHTTPRequest(jsonData2)
+	if err != nil {
+		fmt.Println("Error al enviar la petición HTTP:", err)
+	}
+	fmt.Println("Petición HTTP enviada exitosamente en el segundo intento")
 }
