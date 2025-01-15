@@ -33,7 +33,7 @@ type Email struct {
 }
 
 func main() {
-	dirPath := "C:/Users/User/Documents/prueba_truora/enron_mail_20110402/enron_mail_20110402/maildir"
+	dirPath := filepath.Join("..", "enron_mail_20110402", "maildir")
 	directories := []string{}
 	err := findDirectories(dirPath, &directories)
 	if err != nil {
