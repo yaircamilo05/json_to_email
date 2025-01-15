@@ -207,7 +207,7 @@ func readEmail(filePath string) (Email, error) {
 }
 
 func sendHTTPRequest(data []byte) error {
-	url := "https://api.openobserve.ai/api/yair_camilo_organization_15016_FGL9xXNbnwFSWC2/default/_json"
+	url := "https://api.openobserve.ai/api/yair_camilo_organization_15016_FGL9xXNbnwFSWC2/prueba/_json"
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
 	if err != nil {
 		return fmt.Errorf("error creando la petición HTTP: %v", err)
