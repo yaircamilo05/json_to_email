@@ -115,6 +115,7 @@ func processDirectory(path string) {
 		return
 	}
 
+	var emails []Email
 	for _, entry := range entries {
 		if !entry.IsDir() {
 			filePath := filepath.Join(path, entry.Name())
@@ -123,13 +124,15 @@ func processDirectory(path string) {
 				fmt.Println("Error al leer el archivo:", err)
 				continue
 			}
-			err = sendEmailAsNDJSON(email)
-			if err != nil {
-				fmt.Println("Error al enviar el correo:", err)
-			}
-			time.Sleep(1000 * time.Millisecond) // Agregar un retraso de 100 ms entre solicitudes
+			emails = append(emails, email)
 		}
 	}
+
+	err = sendEmailsAsJSON(emails)
+	if err != nil {
+		fmt.Println("Error al enviar el correo:", err)
+	}
+	time.Sleep(1000 * time.Millisecond) // Agregar un retraso de 1000 ms entre solicitudes
 }
 
 func readEmail(filePath string) (Email, error) {
@@ -194,20 +197,23 @@ func readEmail(filePath string) (Email, error) {
 	return email, nil
 }
 
-func sendEmailAsNDJSON(email Email) error {
-	index := `{ "index" : { "_index" : "olympics" } }`
-	emailJSON, err := json.Marshal(email)
-	if err != nil {
-		return fmt.Errorf("error al convertir el correo a JSON: %v", err)
+func sendEmailsAsJSON(emails []Email) error {
+	data := map[string]interface{}{
+		"index":   "prueba",
+		"records": emails,
 	}
-	data := fmt.Sprintf("%s\n%s\n", index, emailJSON)
 
-	req, err := http.NewRequest("POST", "http://localhost:4080/api/_bulk", strings.NewReader(data))
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return fmt.Errorf("error al convertir los correos a JSON: %v", err)
+	}
+
+	req, err := http.NewRequest("POST", "http://localhost:5080/api/default/default/_json", strings.NewReader(string(jsonData)))
 	if err != nil {
 		return fmt.Errorf("error creando la petición HTTP: %v", err)
 	}
-	req.SetBasicAuth("admin", "Complexpass#123")
-	req.Header.Set("Content-Type", "application/x-ndjson")
+	req.SetBasicAuth("root@example.com", "T9uplVBu16xjKUrd")
+	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
