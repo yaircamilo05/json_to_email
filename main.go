@@ -6,7 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
+	_ "net/http/pprof" // Importa el paquete pprof
 	"os"
 	"path/filepath"
 	"strings"
@@ -34,6 +36,12 @@ type Email struct {
 }
 
 func main() {
+	// Inicia el servidor HTTP para el profiling
+	go func() {
+		fmt.Println("Iniciando servidor de profiling en :6060")
+		log.Println(http.ListenAndServe("localhost:6060", nil))
+	}()
+
 	start := time.Now() // Inicia el temporizador
 
 	dirPath := filepath.Join("..", "enron_mail_20110402", "maildir")
