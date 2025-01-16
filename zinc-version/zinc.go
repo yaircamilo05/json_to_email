@@ -208,11 +208,11 @@ func sendEmailsAsJSON(emails []Email) error {
 		return fmt.Errorf("error al convertir los correos a JSON: %v", err)
 	}
 
-	req, err := http.NewRequest("POST", "http://localhost:5080/api/default/default/_json", strings.NewReader(string(jsonData)))
+	req, err := http.NewRequest("POST", "http://localhost:4080/api/_bulkv2", strings.NewReader(string(jsonData)))
 	if err != nil {
 		return fmt.Errorf("error creando la petición HTTP: %v", err)
 	}
-	req.SetBasicAuth("root@example.com", "T9uplVBu16xjKUrd")
+	req.SetBasicAuth("admin", "Complexpass#123")
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
