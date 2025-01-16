@@ -215,7 +215,7 @@ func readEmail(filePath string) (Email, error) {
 }
 
 func sendHTTPRequest(data []byte) error {
-	url := "http://localhost:5080/api/default/prueba/_json"
+	url := "http://localhost:5080/api/default/definitivo/_json"
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
 	if err != nil {
 		return fmt.Errorf("error creando la petición HTTP: %v", err)
