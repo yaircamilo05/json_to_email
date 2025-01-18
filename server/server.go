@@ -25,8 +25,7 @@ func main() {
 		w.Write([]byte("Hello World!"))
 	})
 
-	r.Get("/process", handler.ProcessHandler)
-
+	r.Post("/process", handler.ProcessHandler)
 	fmt.Println("Servidor escuchando en el puerto 3000")
 	http.ListenAndServe(":3000", r)
 }
