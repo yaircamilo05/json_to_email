@@ -28,7 +28,7 @@ func ProcessHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	directoriesWithFiles := utils.FilterDirectoriesWithFiles(directories)
-	utils.Core(directoriesWithFiles)
+	utils.Core(directoriesWithFiles, req.StreamName)
 
 	w.Write([]byte("Procesamiento completado para el stream: " + req.StreamName))
 }

@@ -31,7 +31,7 @@ type Email struct {
 	Body                    string `json:"Body"`
 }
 
-func ProcessDirectory(path string) {
+func ProcessDirectory(path string, streamName string) {
 	emails := []Email{}
 	entries, err := os.ReadDir(path)
 	if err != nil {
@@ -57,11 +57,11 @@ func ProcessDirectory(path string) {
 		return
 	}
 
-	err = SendHTTPRequest(jsonData)
+	err = SendHTTPRequest(jsonData, streamName)
 	if err != nil {
 		fmt.Println("Error al enviar la petición HTTP:", err)
 		if strings.Contains(err.Error(), "413 Request Entity Too Large") {
-			HandleLargeRequest(emails)
+			HandleLargeRequest(emails, streamName)
 		}
 	}
 }
@@ -128,8 +128,9 @@ func ReadEmail(filePath string) (Email, error) {
 	return email, nil
 }
 
-func SendHTTPRequest(data []byte) error {
-	url := "http://localhost:5080/api/prueba/emails/_json"
+func SendHTTPRequest(data []byte, streamName string) error {
+
+	url := fmt.Sprintf("http://localhost:5080/api/prueba/%s/_json", streamName)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
 	if err != nil {
 		return fmt.Errorf("error creando la petición HTTP: %v", err)
@@ -152,7 +153,7 @@ func SendHTTPRequest(data []byte) error {
 	return nil
 }
 
-func HandleLargeRequest(emails []Email) {
+func HandleLargeRequest(emails []Email, streamName string) {
 	// Dividir el arreglo de emails en dos partes y reenviar
 	mid := len(emails) / 2
 	batch1 := emails[:mid]
@@ -170,13 +171,13 @@ func HandleLargeRequest(emails []Email) {
 		return
 	}
 
-	err = SendHTTPRequest(jsonData1)
+	err = SendHTTPRequest(jsonData1, streamName)
 	if err != nil {
 		fmt.Println("Error al enviar la petición HTTP:", err)
 	}
 	fmt.Println("Petición HTTP enviada exitosamente en el segundo intento")
 
-	err = SendHTTPRequest(jsonData2)
+	err = SendHTTPRequest(jsonData2, streamName)
 	if err != nil {
 		fmt.Println("Error al enviar la petición HTTP:", err)
 	}

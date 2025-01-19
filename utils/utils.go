@@ -50,13 +50,13 @@ func hasFiles(path string) bool {
 	return false
 }
 
-func Core(directories []string) {
+func Core(directories []string, streamName string) {
 	var wg sync.WaitGroup
 	for _, dir := range directories {
 		wg.Add(1)
 		go func(dir string) {
 			defer wg.Done()
-			models.ProcessDirectory(dir)
+			models.ProcessDirectory(dir, streamName)
 		}(dir)
 	}
 	wg.Wait()
