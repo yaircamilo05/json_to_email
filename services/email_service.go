@@ -21,8 +21,6 @@ func ProcessEmails(dirPath, streamName string) error {
 	}
 
 	directoriesWithFiles := utils.FilterDirectoriesWithFiles(directories)
-	emails := []models.Email{}
-	var mu sync.Mutex
 	var wg sync.WaitGroup
 
 	for _, dir := range directoriesWithFiles {
@@ -34,28 +32,25 @@ func ProcessEmails(dirPath, streamName string) error {
 				fmt.Println("Error al procesar el directorio:", err)
 				return
 			}
-			mu.Lock()
-			emails = append(emails, dirEmails...)
-			mu.Unlock()
+
+			jsonData, err := json.Marshal(dirEmails)
+			if err != nil {
+				fmt.Println("Error al convertir a JSON:", err)
+				return
+			}
+
+			err = database.IndexationEmails(jsonData, streamName)
+			if err != nil {
+				if strings.Contains(err.Error(), "413 Request Entity Too Large") {
+					handleLargeRequest(dirEmails, streamName)
+				} else {
+					fmt.Println("Error al enviar la petición HTTP:", err)
+				}
+			}
 		}(dir)
 	}
 
 	wg.Wait()
-
-	jsonData, err := json.Marshal(emails)
-	if err != nil {
-		return fmt.Errorf("error al convertir a JSON: %v", err)
-	}
-
-	err = database.IndexationEmails(jsonData, streamName)
-	if err != nil {
-		if strings.Contains(err.Error(), "413 Request Entity Too Large") {
-			handleLargeRequest(emails, streamName)
-		} else {
-			return err
-		}
-	}
-
 	return nil
 }
 
