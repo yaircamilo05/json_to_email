@@ -107,6 +107,21 @@ func handleLargeRequest(emails []models.Email, streamName string) {
 	fmt.Println("Petición HTTP enviada exitosamente en el segundo intento")
 }
 
-func GetEmails() ([]models.Email, error) {
+func GetAllEmails() ([]models.Email, error) {
+	schemas, err := database.GetSchemas()
+	if err != nil {
+		return nil, err
+	}
+
+	if len(schemas.List) == 0 {
+		return nil, fmt.Errorf("no se encontraron esquemas en la respuesta")
+	}
+
+	stats := schemas.List[0].Stats
+	docTimeMin := stats.DocTimeMin
+	docTimeMax := stats.DocTimeMax
+
+	fmt.Printf("doc_time_min: %d, doc_time_max: %d\n", docTimeMin, docTimeMax)
+
 	return database.GetEmails()
 }

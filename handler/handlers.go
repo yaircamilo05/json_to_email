@@ -2,18 +2,15 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
+	"github.com/yaircamilo05/email_to_json/models"
 	"github.com/yaircamilo05/email_to_json/services"
 )
 
-type ProcessRequest struct {
-	DirPath    string `json:"dir_path"`
-	StreamName string `json:"stream_name"`
-}
-
 func ProcessHandler(w http.ResponseWriter, r *http.Request) {
-	var req ProcessRequest
+	var req models.ProcessRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		http.Error(w, "Error al decodificar la solicitud: "+err.Error(), http.StatusBadRequest)
@@ -30,7 +27,9 @@ func ProcessHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetEmailsHandler(w http.ResponseWriter, r *http.Request) {
-	emails, err := services.GetEmails()
+	var req models.GetAllEmailsRequest
+	fmt.Println("req", req)
+	emails, err := services.GetAllEmails()
 	if err != nil {
 		http.Error(w, "Error al obtener los emails: "+err.Error(), http.StatusInternalServerError)
 		return

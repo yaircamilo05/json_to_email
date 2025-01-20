@@ -16,11 +16,19 @@ const (
 	contentType = "application/json"
 )
 
+const (
+	errCreatingHTTPRequest = "error creando la petición HTTP: %v"
+	errSendingHTTPRequest  = "error enviando la petición HTTP: %v"
+	errDecodingResponse    = "error decodificando la respuesta JSON: %v"
+	errHTTPResponse        = "error en la respuesta HTTP: %s"
+	respSuccess            = "Petición HTTP enviada exitosamente: %s"
+)
+
 func GetEmails() ([]models.Email, error) {
 	url := fmt.Sprintf("%s/_search", baseURL)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, fmt.Errorf("error creando la petición HTTP: %v", err)
+		return nil, fmt.Errorf(errCreatingHTTPRequest, err)
 	}
 	req.SetBasicAuth(username, password)
 	req.Header.Set("Content-Type", contentType)
@@ -28,20 +36,20 @@ func GetEmails() ([]models.Email, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("error enviando la petición HTTP: %v", err)
+		return nil, fmt.Errorf(errSendingHTTPRequest, err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("error en la respuesta HTTP: %s", resp.Status)
+		return nil, fmt.Errorf(errHTTPResponse, resp.Status)
 	}
 
 	var emails []models.Email
 	if err := json.NewDecoder(resp.Body).Decode(&emails); err != nil {
-		return nil, fmt.Errorf("error decodificando la respuesta JSON: %v", err)
+		return nil, fmt.Errorf(errDecodingResponse, err)
 	}
 
-	fmt.Printf("Petición HTTP enviada exitosamente: %s\n", resp.Status)
+	fmt.Printf(respSuccess, resp.Status)
 	return emails, nil
 }
 
@@ -49,7 +57,7 @@ func IndexationEmails(data []byte, streamName string) error {
 	url := fmt.Sprintf("%s/%s/_json", baseURL, streamName)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
 	if err != nil {
-		return fmt.Errorf("error creando la petición HTTP: %v", err)
+		return fmt.Errorf(errCreatingHTTPRequest, err)
 	}
 	req.SetBasicAuth(username, password)
 	req.Header.Set("Content-Type", contentType)
@@ -57,14 +65,43 @@ func IndexationEmails(data []byte, streamName string) error {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("error enviando la petición HTTP: %v", err)
+		return fmt.Errorf(errSendingHTTPRequest, err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("error en la respuesta HTTP: %s", resp.Status)
+		return fmt.Errorf(errHTTPResponse, resp.Status)
 	}
 
-	fmt.Printf("Petición HTTP enviada exitosamente: %s\n", resp.Status)
+	fmt.Printf(respSuccess, resp.Status)
 	return nil
+}
+
+func GetSchemas() (models.GetSchemasResponse, error) {
+	url := fmt.Sprintf("%s/streams?fetchSchema=false", baseURL)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return models.GetSchemasResponse{}, fmt.Errorf(errCreatingHTTPRequest, err)
+	}
+	req.SetBasicAuth(username, password)
+	req.Header.Set("Content-Type", contentType)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return models.GetSchemasResponse{}, fmt.Errorf(errSendingHTTPRequest, err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return models.GetSchemasResponse{}, fmt.Errorf(errHTTPResponse, resp.Status)
+	}
+
+	var result models.GetSchemasResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return models.GetSchemasResponse{}, fmt.Errorf(errDecodingResponse, err)
+	}
+
+	fmt.Printf(respSuccess, resp.Status)
+	return result, nil
 }
