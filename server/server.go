@@ -28,4 +28,7 @@ func main() {
 	r.Post("/process", handler.ProcessHandler)
 	fmt.Println("Servidor escuchando en el puerto 3000")
 	http.ListenAndServe(":3000", r)
+
+	//consigue todos los emails de la base de datos
+	r.Get(("/get_emails"), handler.GetEmailsHandler)
 }

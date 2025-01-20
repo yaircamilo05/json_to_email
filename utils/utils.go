@@ -4,9 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"sync"
-
-	"github.com/yaircamilo05/email_to_json/models"
 )
 
 func FindDirectories(path string, directories *[]string) error {
@@ -48,16 +45,4 @@ func hasFiles(path string) bool {
 		}
 	}
 	return false
-}
-
-func Core(directories []string, streamName string) {
-	var wg sync.WaitGroup
-	for _, dir := range directories {
-		wg.Add(1)
-		go func(dir string) {
-			defer wg.Done()
-			models.ProcessDirectory(dir, streamName)
-		}(dir)
-	}
-	wg.Wait()
 }
