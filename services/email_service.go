@@ -117,8 +117,8 @@ func GetEmails(req models.GetAllEmailsRequest) (models.SearchResponse, error) {
 		SQL:       req.SQL,
 		From:      req.From,
 		Size:      req.Size,
-		StartTime: schemaSelected.Stats.DocTimeMax,
-		EndTime:   schemaSelected.Stats.DocTimeMin,
+		StartTime: schemaSelected.Stats.DocTimeMin,
+		EndTime:   schemaSelected.Stats.DocTimeMax,
 	}
 
 	listEmails, err := database.GetEmails(querySQL)

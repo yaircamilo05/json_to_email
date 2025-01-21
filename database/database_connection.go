@@ -65,6 +65,7 @@ func GetEmails(querySQL models.Query) ([]models.Email, error) {
 		return nil, fmt.Errorf(errDecodingResponse, err)
 	}
 
+	fmt.Print(result)
 	fmt.Printf(respSuccess, resp.Status)
 	return result.Hits, nil
 }

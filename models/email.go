@@ -8,22 +8,22 @@ import (
 )
 
 type Email struct {
-	MessageID               string `json:"Message-ID"`
-	Date                    string `json:"Date"`
-	From                    string `json:"From"`
-	To                      string `json:"To"`
-	Subject                 string `json:"Subject"`
-	MimeVersion             string `json:"Mime-Version"`
-	ContentType             string `json:"Content-Type"`
-	ContentTransferEncoding string `json:"Content-Transfer-Encoding"`
-	XFrom                   string `json:"X-From"`
-	XTo                     string `json:"X-To"`
-	XCC                     string `json:"X-cc"`
-	XBCC                    string `json:"X-bcc"`
-	XFolder                 string `json:"X-Folder"`
-	XOrigin                 string `json:"X-Origin"`
-	XFileName               string `json:"X-FileName"`
-	Body                    string `json:"Body"`
+	MessageID               string `json:"message_id"`
+	Date                    string `json:"date"`
+	From                    string `json:"from"`
+	To                      string `json:"to"`
+	Subject                 string `json:"subject"`
+	MimeVersion             string `json:"mime_version"`
+	ContentType             string `json:"content_type"`
+	ContentTransferEncoding string `json:"content_transfer_encoding"`
+	XFrom                   string `json:"x_from"`
+	XTo                     string `json:"x_to"`
+	XCC                     string `json:"x_cc"`
+	XBCC                    string `json:"x_bcc"`
+	XFolder                 string `json:"X_folder"`
+	XOrigin                 string `json:"X_origin"`
+	XFileName               string `json:"X_fileName"`
+	Body                    string `json:"body"`
 }
 
 func ReadEmail(filePath string) (Email, error) {
