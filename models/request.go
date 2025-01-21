@@ -14,7 +14,14 @@ type Query struct {
 }
 
 type GetAllEmailsRequest struct {
-	Query      Query  `json:"query"`
-	SearchType string `json:"search_type"`
-	Timeout    int    `json:"timeout"`
+	Schema string `json:"schema"`
+	SQL    string `json:"sql"`
+	From   int    `json:"from"`
+	Size   int    `json:"size"`
+}
+
+type searchEmailsResponse struct {
+	SQL        Query  `json:"sql"`
+	Searchtype string `json:"searchtype"`
+	Timeout    string `json:"timeout"`
 }

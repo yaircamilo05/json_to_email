@@ -24,9 +24,9 @@ const (
 	respSuccess            = "Petición HTTP enviada exitosamente: %s"
 )
 
-func GetEmails() ([]models.Email, error) {
+func GetEmails(querySQL models.Query) ([]models.Email, error) {
 	url := fmt.Sprintf("%s/_search", baseURL)
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("POST", url, nil)
 	if err != nil {
 		return nil, fmt.Errorf(errCreatingHTTPRequest, err)
 	}
@@ -44,13 +44,14 @@ func GetEmails() ([]models.Email, error) {
 		return nil, fmt.Errorf(errHTTPResponse, resp.Status)
 	}
 
-	var emails []models.Email
-	if err := json.NewDecoder(resp.Body).Decode(&emails); err != nil {
+	var result models.SearchResponse
+
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, fmt.Errorf(errDecodingResponse, err)
 	}
 
 	fmt.Printf(respSuccess, resp.Status)
-	return emails, nil
+	return result.Hits, nil
 }
 
 func IndexationEmails(data []byte, streamName string) error {
@@ -104,4 +105,17 @@ func GetSchemas() (models.GetSchemasResponse, error) {
 
 	fmt.Printf(respSuccess, resp.Status)
 	return result, nil
+}
+
+func GetSchemaByName(SchemaName string) (models.Schema, error) {
+	ListSchema, err := GetSchemas()
+	if err != nil {
+		return models.Schema{}, err
+	}
+	for _, schema := range ListSchema.List {
+		if schema.Name == SchemaName {
+			return schema, nil
+		}
+	}
+	return models.Schema{}, fmt.Errorf("Schema %s not found", SchemaName)
 }

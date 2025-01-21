@@ -107,21 +107,28 @@ func handleLargeRequest(emails []models.Email, streamName string) {
 	fmt.Println("Petición HTTP enviada exitosamente en el segundo intento")
 }
 
-func GetAllEmails() ([]models.Email, error) {
-	schemas, err := database.GetSchemas()
+func GetEmails(req models.GetAllEmailsRequest) (models.SearchResponse, error) {
+	schemaSelected, err := database.GetSchemaByName(req.Schema)
 	if err != nil {
-		return nil, err
+		return models.SearchResponse{}, fmt.Errorf("error al obtener el schema: %v", err)
 	}
 
-	if len(schemas.List) == 0 {
-		return nil, fmt.Errorf("no se encontraron esquemas en la respuesta")
+	querySQL := models.Query{
+		SQL:       req.SQL,
+		From:      req.From,
+		Size:      req.Size,
+		StartTime: schemaSelected.Stats.DocTimeMax,
+		EndTime:   schemaSelected.Stats.DocTimeMin,
 	}
 
-	stats := schemas.List[0].Stats
-	docTimeMin := stats.DocTimeMin
-	docTimeMax := stats.DocTimeMax
+	listEmails, err := database.GetEmails(querySQL)
+	if err != nil {
+		return models.SearchResponse{}, fmt.Errorf("error al obtener los emails: %v", err)
+	}
 
-	fmt.Printf("doc_time_min: %d, doc_time_max: %d\n", docTimeMin, docTimeMax)
+	resp := models.SearchResponse{
+		Hits: listEmails,
+	}
 
-	return database.GetEmails()
+	return resp, nil
 }
