@@ -126,9 +126,5 @@ func GetEmails(req models.GetAllEmailsRequest) (models.SearchResponse, error) {
 		return models.SearchResponse{}, fmt.Errorf("error al obtener los emails: %v", err)
 	}
 
-	resp := models.SearchResponse{
-		Hits: listEmails,
-	}
-
-	return resp, nil
+	return listEmails, nil
 }

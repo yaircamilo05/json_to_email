@@ -9,18 +9,6 @@ type TookDetail struct {
 }
 
 type SearchResponse struct {
-	Took             int        `json:"took"`
-	TookDetail       TookDetail `json:"took_detail"`
-	Hits             []Email    `json:"hits"`
-	Total            int        `json:"total"`
-	From             int        `json:"from"`
-	Size             int        `json:"size"`
-	CachedRatio      int        `json:"cached_ratio"`
-	ScanSize         int        `json:"scan_size"`
-	IdxScanSize      int        `json:"idx_scan_size"`
-	ScanRecords      int        `json:"scan_records"`
-	TraceID          string     `json:"trace_id"`
-	IsPartial        bool       `json:"is_partial"`
-	ResultCacheRatio int        `json:"result_cache_ratio"`
-	OrderBy          string     `json:"order_by"`
+	Hits        []Email `json:"hits"`
+	ScanRecords int     `json:"scan_records"`
 }

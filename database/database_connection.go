@@ -25,7 +25,7 @@ const (
 	respSuccess            = "Petición HTTP enviada exitosamente: %s"
 )
 
-func GetEmails(querySQL models.Query) ([]models.Email, error) {
+func GetEmails(querySQL models.Query) (models.SearchResponse, error) {
 	url := fmt.Sprintf("%s/_search", baseURL)
 
 	body := models.SearchEmailsResponse{
@@ -37,13 +37,13 @@ func GetEmails(querySQL models.Query) ([]models.Email, error) {
 	jsonBody, err := json.Marshal(body)
 
 	if err != nil {
-		return nil, fmt.Errorf(errCreatingHTTPRequest, err)
+		return models.SearchResponse{}, fmt.Errorf(errCreatingHTTPRequest, err)
 	}
 
 	fmt.Println(string(jsonBody))
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
 	if err != nil {
-		return nil, fmt.Errorf(errCreatingHTTPRequest, err)
+		return models.SearchResponse{}, fmt.Errorf(errCreatingHTTPRequest, err)
 	}
 	req.SetBasicAuth(username, password)
 	req.Header.Set("Content-Type", contentType)
@@ -51,23 +51,22 @@ func GetEmails(querySQL models.Query) ([]models.Email, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf(errSendingHTTPRequest, err)
+		return models.SearchResponse{}, fmt.Errorf(errSendingHTTPRequest, err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf(errHTTPResponse, resp.Status)
+		return models.SearchResponse{}, fmt.Errorf(errHTTPResponse, resp.Status)
 	}
 
 	var result models.SearchResponse
 
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf(errDecodingResponse, err)
+		return models.SearchResponse{}, fmt.Errorf(errDecodingResponse, err)
 	}
 
-	fmt.Print(result)
 	fmt.Printf(respSuccess, resp.Status)
-	return result.Hits, nil
+	return result, nil
 }
 
 func IndexationEmails(data []byte, streamName string) error {
