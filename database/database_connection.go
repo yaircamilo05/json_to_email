@@ -10,10 +10,11 @@ import (
 )
 
 const (
-	baseURL     = "http://localhost:5080/api/prueba"
-	username    = "root@example.com"
-	password    = "T9uplVBu16xjKUrd"
-	contentType = "application/json"
+	baseURL         = "http://localhost:5080/api/prueba"
+	username        = "root@example.com"
+	apiKeyIngestion = "T9uplVBu16xjKUrd"
+	contentType     = "application/json"
+	password        = "Complexpass#123"
 )
 
 const (
@@ -26,7 +27,21 @@ const (
 
 func GetEmails(querySQL models.Query) ([]models.Email, error) {
 	url := fmt.Sprintf("%s/_search", baseURL)
-	req, err := http.NewRequest("POST", url, nil)
+
+	body := models.SearchEmailsResponse{
+		SQL:        querySQL,
+		Searchtype: "ui",
+		Timeout:    0,
+	}
+
+	jsonBody, err := json.Marshal(body)
+
+	if err != nil {
+		return nil, fmt.Errorf(errCreatingHTTPRequest, err)
+	}
+
+	fmt.Println(string(jsonBody))
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
 	if err != nil {
 		return nil, fmt.Errorf(errCreatingHTTPRequest, err)
 	}
@@ -60,7 +75,7 @@ func IndexationEmails(data []byte, streamName string) error {
 	if err != nil {
 		return fmt.Errorf(errCreatingHTTPRequest, err)
 	}
-	req.SetBasicAuth(username, password)
+	req.SetBasicAuth(username, apiKeyIngestion)
 	req.Header.Set("Content-Type", contentType)
 
 	client := &http.Client{}
@@ -117,5 +132,5 @@ func GetSchemaByName(SchemaName string) (models.Schema, error) {
 			return schema, nil
 		}
 	}
-	return models.Schema{}, fmt.Errorf("Schema %s not found", SchemaName)
+	return models.Schema{}, fmt.Errorf("schema %s not found", SchemaName)
 }

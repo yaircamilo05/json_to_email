@@ -20,8 +20,8 @@ type GetAllEmailsRequest struct {
 	Size   int    `json:"size"`
 }
 
-type searchEmailsResponse struct {
-	SQL        Query  `json:"sql"`
-	Searchtype string `json:"searchtype"`
-	Timeout    string `json:"timeout"`
+type SearchEmailsResponse struct {
+	SQL        Query  `json:"query"`
+	Searchtype string `json:"search_type"`
+	Timeout    int    `json:"timeout"`
 }
