@@ -20,14 +20,14 @@ var (
 	contentType     = "application/json"
 )
 
-// Cargar las variables de entorno al iniciar el paquete
 func init() {
-	err := godotenv.Load()
+
+	err := godotenv.Load(".env")
 	if err != nil {
-		log.Println("No se pudo cargar el archivo .env, usando variables del sistema")
+		log.Fatal("Error cargando el archivo .env:", err)
 	}
 
-	baseURL = os.Getenv("BASE_URL")
+	baseURL = os.Getenv("BASEURL")
 	username = os.Getenv("USERNAME")
 	password = os.Getenv("PASSWORD")
 	apiKeyIngestion = os.Getenv("API_KEY_INGESTION")
