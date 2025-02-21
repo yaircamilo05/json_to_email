@@ -8,7 +8,7 @@ import (
 	"io"
 	"log"
 	"net/http"
-	_ "net/http/pprof" // Importa el paquete pprof
+	_ "net/http/pprof"
 	"os"
 	"path/filepath"
 	"strings"
