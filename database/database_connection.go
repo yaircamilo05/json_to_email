@@ -4,18 +4,38 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/yaircamilo05/email_to_json/models"
 )
 
-const (
-	baseURL         = "http://localhost:5080/api/prueba"
-	username        = "root@example.com"
-	apiKeyIngestion = "T9uplVBu16xjKUrd"
+var (
+	baseURL         string
+	username        string
+	password        string
+	apiKeyIngestion string
 	contentType     = "application/json"
-	password        = "Complexpass#123"
 )
+
+// Cargar las variables de entorno al iniciar el paquete
+func init() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("No se pudo cargar el archivo .env, usando variables del sistema")
+	}
+
+	baseURL = os.Getenv("BASE_URL")
+	username = os.Getenv("USERNAME")
+	password = os.Getenv("PASSWORD")
+	apiKeyIngestion = os.Getenv("API_KEY_INGESTION")
+
+	if baseURL == "" || username == "" || password == "" || apiKeyIngestion == "" {
+		log.Fatal("Faltan variables de entorno necesarias")
+	}
+}
 
 const (
 	errCreatingHTTPRequest = "error creando la petición HTTP: %v"
